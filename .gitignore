@@ -16,3 +16,4 @@ data.json
 #api test
 *.http
 vault_demo
+.DS_store
