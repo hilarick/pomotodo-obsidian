@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-pomotodo",
+	"name": "Pomotodo",
+	"version": "0.0.1",
+	"minAppVersion": "0.9.12",
+	"description": "use pomotodo in obsidian",
+	"author": "hilarick",
+	"authorUrl": "",
+	"isDesktopOnly": true
+}

@@ -1,0 +1,7 @@
+.statusbar-pomotodo {
+    font-variant-numeric: tabular-nums;
+}
+
+.pomotodo-logging:hover {
+    cursor: pointer;
+}
