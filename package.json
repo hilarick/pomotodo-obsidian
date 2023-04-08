@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w --bundleConfigAsCjs",
-    "build": "rollup --config rollup.config.js --environment BUILD:production --bundleConfigAsCjs",
+    "build": "rollup --config rollup.config.js --environment BUILD:production ",
     "release": "standard-version"
   },
   "keywords": [],
