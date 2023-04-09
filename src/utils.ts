@@ -53,7 +53,7 @@ export async function getDailyNoteTodos(app: App): Promise<Todo[]> {
   }
 }
 
-export async function updateDailyNoteTodo(app: App, uuid: string): Promise<boolean> {
+export async function updateDailyNoteTodo(app: App, uuid: string, endTime: string): Promise<boolean> {
   try {
     const todayNoteFile = getDailyNoteFile();
 
@@ -67,7 +67,8 @@ export async function updateDailyNoteTodo(app: App, uuid: string): Promise<boole
         const splits = line.split('^');
         const uuidInline = splits[1];
         if (uuid === uuidInline) {
-          lines.splice(i, 1, line.replace("- [ ]", "- [x]"));
+          const modifiedLine = line.concat(` completed:: ${endTime}`);
+          lines.splice(i, 1, modifiedLine.replace("- [ ]", "- [x]"));
 
           break;
 
