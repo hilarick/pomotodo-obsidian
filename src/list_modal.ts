@@ -34,14 +34,16 @@ export class PomoTodoListModal extends SuggestModal<Todo> {
     const pomotodoapi = new Pomotodoapi(this.apiKey);
     try {
       await pomotodoapi.createPomo(todo.description, this.startAt, this.pomoLength);
-      const uuidResponse = await pomotodoapi.finishTodo(todo.uuid);
-      if (uuidResponse === todo.uuid) {
-
-        const endTime = new Date(new Date(this.startAt).getTime() + this.pomoLength * 1000);
-        // Convert endTime to the required format by the Pomotodo API
-        const shanghaiTime = endTime.toLocaleString("en-US", { timeZone: "Asia/Shanghai" });
-        const formattedEndTime = shanghaiTime.replace(/,/, '');
-        updateDailyNoteTodo(this.app, todo.uuid, formattedEndTime);
+      if (evt instanceof KeyboardEvent && evt.key === "Enter") {
+        console.log("enter key and make the todo finished");
+        const uuidResponse = await pomotodoapi.finishTodo(todo.uuid);
+        if (uuidResponse === todo.uuid) {
+          const endTime = new Date(new Date(this.startAt).getTime() + this.pomoLength * 1000);
+          // Convert endTime to the required format by the Pomotodo API
+          const shanghaiTime = endTime.toLocaleString("en-US", { timeZone: "Asia/Shanghai" });
+          const formattedEndTime = shanghaiTime.replace(/,/, '');
+          updateDailyNoteTodo(this.app, todo.uuid, formattedEndTime);
+        }
       }
     } catch (error) {
       new Notice(`task ${todo.description} uploaded failed: ${error.message}`);
