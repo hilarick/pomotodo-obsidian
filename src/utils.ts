@@ -66,8 +66,9 @@ export async function updateDailyNoteTodo(app: App, uuid: string, endTime: strin
       if (line.startsWith("- [ ]")) {
         const splits = line.split('^');
         const uuidInline = splits[1];
+        const index = line.indexOf('^');
         if (uuid === uuidInline) {
-          const modifiedLine = line.concat(` completed:: ${endTime}`);
+          const modifiedLine = line.slice(0, index) + ` completed:: ${endTime} ` + line.slice(index);
           lines.splice(i, 1, modifiedLine.replace("- [ ]", "- [x]"));
 
           break;

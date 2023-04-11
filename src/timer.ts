@@ -24,6 +24,7 @@ export class Timer {
 	settings: PomoSettings;
 	startTime: moment.Moment; /*when currently running timer started*/
 	endTime: moment.Moment;   /*when currently running timer will end if not paused*/
+	lastStartTime: moment.Moment;
 	status: Status;
 	pausedTime: number;  /*time left on paused timer, in milliseconds*/
 	paused: boolean;
@@ -184,7 +185,13 @@ export class Timer {
 	}
 
 	setStartAndEndTime(millisecsLeft: number): void {
+		this.lastStartTime = this.startTime;
 		this.startTime = moment(); //start time to current time
+
+		if (!this.startTime.isSame(this.lastStartTime, 'day')) {
+			this.pomosSinceStart = 0;
+		}
+
 		this.endTime = moment().add(millisecsLeft, 'milliseconds');
 	}
 
