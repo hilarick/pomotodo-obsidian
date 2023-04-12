@@ -45,6 +45,19 @@ export class Pomotodoapi {
     return JSON.parse(data).uuid;
   }
 
+  async modifyTodo(uuid: string, description: string): Promise<String> {
+    const requestData = {
+      url: `${API_URL}/todos/${uuid}`,
+      method: "PATCH",
+      body: JSON.stringify({ "completed": false, "description": `${description}` }),
+      headers: { 'Authorization': `token ${this.key}` },
+      contentType: "application/json",
+      throw: false
+    };
+    const data = await request(requestData);
+    return JSON.parse(data).uuid;
+  }
+
   async createSubTodo(content: string, parentUUID: string): Promise<string> {
     console.log("post subTodo", content);
     const data = await request({

@@ -3,6 +3,7 @@ import { PomoSettingTab, PomoSettings, DEFAULT_SETTINGS } from './settings';
 import { Status, Timer } from './timer';
 import { Pomotodoapi as PomotodoApi } from './pomotodoapi';
 import { getDailyNoteFile } from './utils';
+import { Todo } from './utils';
 
 
 export default class PomoTimerPlugin extends Plugin {
@@ -10,6 +11,7 @@ export default class PomoTimerPlugin extends Plugin {
 	statusBar: HTMLElement;
 	timer: Timer;
 	pomotodoApi: PomotodoApi;
+	todos: Todo[];
 
 	async onload() {
 
@@ -95,22 +97,50 @@ export default class PomoTimerPlugin extends Plugin {
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const lineCount = editor.lineCount();
 
-				let lastTodoUUID: string = null;
 				for (let i = 0; i < lineCount; i++) {
 					const lineContent = editor.getLine(i);
-					if (lineContent.startsWith("- [ ]") && !lineContent.contains('^')) {
-
-						const uuidTodo = await this.pomotodoApi.createTodo(lineContent.substring(5));
-
-						const lineContentWithBlock = lineContent.concat(` ^${uuidTodo}`);
-						lastTodoUUID = uuidTodo;
-						editor.setLine(i, lineContentWithBlock);
+					if (lineContent.contains('^')) {
+						// Check if there is a todo with the same uuid as the lineContent
+						const existingTodo = this.todos.find(todo => todo.uuid === lineContent.substring(lineContent.indexOf('^') + 1));
+						if (existingTodo) {
+							// Check if the description is the not the same
+							const newDescription = lineContent.substring(5, lineContent.indexOf('^'));
+							if (existingTodo.description !== newDescription) {
+								await this.pomotodoApi.modifyTodo(existingTodo.uuid, newDescription);
+							}
+						}
 					}
-					if (lineContent.startsWith("\t- [ ]") && !lineContent.contains('^')) {
-						const uuidSubTodo = await this.pomotodoApi.createSubTodo(lineContent.substring(6), lastTodoUUID);
+					//todo , once if the subtodo is modified
+					else {
+						const todo: Todo = { description: '', uuid: '', sub_todos: [] };
 
-						const lineContentWithBlock = lineContent.concat(` ^${uuidSubTodo}`);
-						editor.setLine(i, lineContentWithBlock);
+						if (lineContent.startsWith("- [ ]")) {
+							const description = lineContent.substring(5);
+							todo.description = description;
+							const uuidTodo = await this.pomotodoApi.createTodo(lineContent.substring(5));
+							todo.uuid = uuidTodo;
+
+							const lineContentWithBlock = lineContent.concat(` ^${uuidTodo}`);
+							this.todos.push(todo);
+							editor.setLine(i, lineContentWithBlock);
+						}
+						if (lineContent.startsWith("\t- [ ]")) {
+							const subTodoDescription = lineContent.substring(6);
+							// Find the last todo UUID in this.todos
+							const lastTodo = this.todos[this.todos.length - 1];
+							const lastTodoUUID = lastTodo.uuid;
+							const uuidSubTodo = await this.pomotodoApi.createSubTodo(lineContent.substring(6), lastTodoUUID);
+
+							// Add subtodo as its subtodo field
+							lastTodo.sub_todos.push({
+								description: subTodoDescription,
+								uuid: uuidSubTodo,
+								sub_todos: []
+							});
+
+							const lineContentWithBlock = lineContent.concat(` ^${uuidSubTodo}`);
+							editor.setLine(i, lineContentWithBlock);
+						}
 					}
 
 				}
